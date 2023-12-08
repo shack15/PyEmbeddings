@@ -1,7 +1,7 @@
 import requests
 from transformers import AutoTokenizer
 from typing import Union, List
-from . import api_key
+from . import get_api_key
 
 # Constants
 GENERATION_SERVER_URL = "https://api.silverarrow.ai/generation"
@@ -50,6 +50,7 @@ class Generator:
         return self.models_info.get(self.model_name, {})
 
     def embed(self, text: Union[str, List[str]]):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 

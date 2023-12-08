@@ -1,6 +1,6 @@
 import requests
 from .collection import Collection
-from . import api_key
+from . import get_api_key
 
 # TODO: Replace with hosted API URL
 API_URL = "https://api.silverarrow.ai/storage/"
@@ -13,6 +13,7 @@ class Database:
     # :param model_name: Name of the model to be used for embeddings (optional).
     # :return: Collection object.
     def create_collection(self, name, distance_metric="cosine"):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
@@ -33,6 +34,7 @@ class Database:
     # :param name: Name of the collection to be loaded.
     # :return: Collection object.
     def get_collection(self, name):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
@@ -55,6 +57,7 @@ class Database:
     # Deletes a collection from ChromaDB.
     # :param name: Name of the collection to be deleted.
     def delete_collection(self, name):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")

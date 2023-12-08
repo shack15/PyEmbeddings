@@ -1,6 +1,6 @@
 import requests
 import re
-from . import api_key
+from . import get_api_key
 
 # TODO: Replace with hosted API URL
 API_URL = "https://api.silverarrow.ai/storage/"
@@ -13,6 +13,7 @@ class Collection:
     # Renames a collection in the db.
     # :param new_collection_name: The name to rename the collection to.
     def rename(self, new_collection_name):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
@@ -26,6 +27,7 @@ class Collection:
 
     # Returns the number of items in the collection.
     def count(self):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
@@ -44,6 +46,7 @@ class Collection:
     # :param embeddings: List of embeddings to be added.
     # TODO: Add check for data types of parameters
     def add(self, embeddings=None, documents=None, metadatas=None, ids=None):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
@@ -68,6 +71,7 @@ class Collection:
     # :param (optional) where: Dictionary of metadata filters to be applied.
     # :param (optional) include_embeddings: Whether to include embeddings in the response.
     def query(self, embedding, n_results=10, where=None, include_embeddings=False):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
@@ -94,6 +98,7 @@ class Collection:
     # :param (optional) search_string: Search string to be applied.
     # :param (optional) include_embeddings: Whether to include embeddings in the response.
     def get(self, ids=None, where=None, search_string=None, include_embeddings=False):
+        api_key = get_api_key()
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
@@ -118,6 +123,7 @@ class Collection:
     # :param ids: List of ids to delete.
     # :param (optional) where: Dictionary of metadata filter to be applied.
     def delete(self, ids=None, where=None):
+        api_key = get_api_key()
         response = requests.post(
             f"{API_URL}/delete_from_collection",
             json={"collection_name": self.collection_name, "ids": ids, "where": where},
