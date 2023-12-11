@@ -4,7 +4,7 @@ from typing import Union, List
 from . import get_api_key
 
 # Constants
-GENERATION_SERVER_URL = "https://api.silverarrow.ai/generation"
+GENERATION_SERVER_URL = "https://generation-cpu-bln3a2qo6a-uc.a.run.app"
 
 class Generator:
     # Initializes the Generator
@@ -21,12 +21,28 @@ class Generator:
                 "token_limit": 512,
                 "pricing": "0.0001 per embedding",
             },
+            "bge-base": {
+                "full_name": "BAAI/bge-base-en-v1.5",
+                "type": "text",
+                "description": "General purpose embedding model",
+                "dimensions": 768,
+                "token_limit": 512,
+                "pricing": "0.0001 per embedding",
+            },
             "MiniLM": {
                 "full_name": "sentence-transformers/all-MiniLM-L6-v2",
                 "type": "text",
                 "description": "General purpose embedding model",
                 "dimensions": 384,
                 "token_limit": 512,
+                "pricing": "0.00001 per embedding",
+            },
+            "jina-small": {
+                "full_name": "jinaai/jina-embeddings-v2-small-en",
+                "type": "text",
+                "description": "General purpose embedding model",
+                "dimensions": 512,
+                "token_limit": 8192,
                 "pricing": "0.00001 per embedding",
             }
         }
@@ -65,8 +81,8 @@ class Generator:
 
         model_full_name = self.models_info[self.model_name]["full_name"]
         response = requests.post(
-            f"{GENERATION_SERVER_URL}/embed_text",
-            json={"texts": texts, "model_name": model_full_name},
+            f"{GENERATION_SERVER_URL}/embed",
+            json={"text": texts, "model_name": model_full_name},
             headers={"Authorization": f"Bearer {api_key}"}
         )
 
