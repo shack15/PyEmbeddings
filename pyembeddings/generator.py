@@ -1,7 +1,7 @@
 import requests
 from transformers import AutoTokenizer
 from typing import Union, List
-from . import get_api_key, set_model, get_model
+from . import get_api_key, set_model, get_model, models_info
 
 # Constants
 GENERATION_SERVER_URL = "https://generation-cpu-bln3a2qo6a-uc.a.run.app"
@@ -11,58 +11,25 @@ class Generator:
     # TODO: Should make an api call to set to user's chosen model
     def __init__(self):
         self.tokenizers = {}
-        self.models_info = {
-            "bge-small": {
-                "full_name": "BAAI/bge-small-en-v1.5",
-                "type": "text",
-                "description": "General purpose embedding model",
-                "dimensions": 384,
-                "token_limit": 512,
-                "pricing": "0.0001 per embedding",
-            },
-            "bge-base": {
-                "full_name": "BAAI/bge-base-en-v1.5",
-                "type": "text",
-                "description": "General purpose embedding model",
-                "dimensions": 768,
-                "token_limit": 512,
-                "pricing": "0.0001 per embedding",
-            },
-            "MiniLM": {
-                "full_name": "sentence-transformers/all-MiniLM-L6-v2",
-                "type": "text",
-                "description": "General purpose embedding model",
-                "dimensions": 384,
-                "token_limit": 512,
-                "pricing": "0.00001 per embedding",
-            },
-            "jina-small": {
-                "full_name": "jinaai/jina-embeddings-v2-small-en",
-                "type": "text",
-                "description": "General purpose embedding model",
-                "dimensions": 512,
-                "token_limit": 8192,
-                "pricing": "0.00001 per embedding",
-            }
-        }
+        
         # Preload tokenizers for all models
-        for model in self.models_info:
-            full_name = self.models_info[model]["full_name"]
+        for model in models_info:
+            full_name = models_info[model]["full_name"]
             self.tokenizers[model] = AutoTokenizer.from_pretrained(full_name)
 
     # List all available embedding models and their details
     def list_models(self):
-        return list(self.models_info.values())
+        return list(models_info.values())
 
     # Set the model to be used for embedding generation
     def set_model(self, model_name: str):
-        if model_name not in self.models_info:
+        if model_name not in models_info:
             raise ValueError("Model not found. Please choose a valid model.")
         set_model(model_name)
 
     # Get the details of the set model
     def get_model_info(self):
-        return self.models_info.get(get_model(), {})
+        return models_info.get(get_model(), {})
 
     def embed(self, text: Union[str, List[str]]):
         api_key = get_api_key()
@@ -78,7 +45,7 @@ class Generator:
             if not is_within_limit:
                 raise ValueError(message)
 
-        model_full_name = self.models_info[get_model()]["full_name"]
+        model_full_name = models_info[get_model()]["full_name"]
         response = requests.post(
             f"{GENERATION_SERVER_URL}/embed",
             json={"text": texts, "model_name": model_full_name},
@@ -100,7 +67,7 @@ class Generator:
     # Checks if the given text is within the token limit of the set embedding model
     def within_token_limit(self, text: str):
         token_count = self.count_tokens(text)
-        max_tokens = self.models_info[get_model()]["token_limit"]
+        max_tokens = models_info[get_model()]["token_limit"]
         if token_count > max_tokens:
             return False, f"Text exceeds the token limit of {max_tokens}.\nCurrent token count is {token_count}."
         return True, "Text is within the token limit."
