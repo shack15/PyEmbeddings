@@ -9,10 +9,9 @@ API_URL = "https://storage.silverarrow.ai"
 class Database:
     # Creates a new collection in ChromaDB and returns a Collection object.
     # :param name: Name of the collection to be created
-    # :param distance_metric: The distance metric for the collection (default is "cosine").
     # :param model_name: Name of the model to be used for embeddings (optional).
     # :return: Collection object.
-    def create_collection(self, name, distance_metric="cosine", model=None):
+    def create_collection(self, name, model=None):
         api_key = get_api_key()
         if api_key is None:
             raise Exception(
@@ -25,7 +24,7 @@ class Database:
         # Make API request to create a new collection
         response = requests.post(
             f"{API_URL}/create_collection",
-            json={"collection_name": name, "model_name": model},
+            json={"collection_name": name, "embedding_model": model},
             headers={"Authorization": f"Bearer {api_key}"}
         )
 
@@ -67,7 +66,7 @@ class Database:
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
         # Making the API request to delete the collection
-        response = requests.delete(
+        response = requests.post(
             f"{API_URL}/delete_collection",
             json={"collection_name": name},
             headers={"Authorization": f"Bearer {api_key}"}
