@@ -12,16 +12,18 @@ class Database:
     # :param distance_metric: The distance metric for the collection (default is "cosine").
     # :param model_name: Name of the model to be used for embeddings (optional).
     # :return: Collection object.
-    def create_collection(self, name, distance_metric="cosine"):
+    def create_collection(self, name, distance_metric="cosine", model=None):
         api_key = get_api_key()
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
-
+        if model is None:
+            raise Exception(
+                "Model to be used for the collection not provided.")
         # Make API request to create a new collection
         response = requests.post(
             f"{API_URL}/create_collection",
-            json={"collection_name": name},
+            json={"collection_name": name, "model_name": model},
             headers={"Authorization": f"Bearer {api_key}"}
         )
 

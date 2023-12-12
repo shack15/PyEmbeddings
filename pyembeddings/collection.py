@@ -1,6 +1,6 @@
 import requests
 import re
-from . import get_api_key
+from . import get_api_key, get_model
 
 # TODO: Replace with hosted API URL
 API_URL = "https://storage.silverarrow.ai"
@@ -58,7 +58,8 @@ class Collection:
                 "documents": documents,
                 "metadatas": metadatas,
                 "ids": ids,
-                "embeddings": embeddings
+                "embeddings": embeddings,
+                "model_name": get_model()
             },
             headers={"Authorization": f"Bearer {api_key}"}
         )
