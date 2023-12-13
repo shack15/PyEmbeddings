@@ -3,7 +3,7 @@ import re
 from . import get_api_key, get_model
 
 # TODO: Replace with hosted API URL
-API_URL = "https://storage.silverarrow.ai"
+API_URL = "https://backend-storage-bln3a2qo6a-uc.a.run.app"
 
 
 class Collection:

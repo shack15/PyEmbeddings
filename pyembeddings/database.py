@@ -3,7 +3,7 @@ from .collection import Collection
 from . import get_api_key, models_info
 
 # TODO: Replace with hosted API URL
-API_URL = "https://storage.silverarrow.ai"
+API_URL = "https://backend-storage-bln3a2qo6a-uc.a.run.app"
 
 
 class Database:
