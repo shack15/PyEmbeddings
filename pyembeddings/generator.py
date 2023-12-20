@@ -1,4 +1,5 @@
 import requests
+import os
 from transformers import AutoTokenizer
 from typing import Union, List
 from . import get_api_key, set_model, get_model, models_info
@@ -31,13 +32,27 @@ class Generator:
     def get_model_info(self):
         return models_info.get(get_model(), {})
 
-    def embed(self, text: Union[str, List[str]]):
+    # Generates embeddings for texts or files
+    def embed(self, input_data: Union[str, List[str]]):
         api_key = get_api_key()
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
+        # Check if the input is a single string and a path to a PDF file
+        if isinstance(input_data, str) and input_data.endswith('.pdf'):
+            # Handle PDF file input
+            return self._embed_pdf(input_data, api_key)
+        elif isinstance(input_data, str) or isinstance(input_data, list):
+            # Handle text input (both single string and list of strings)
+            return self._embed_text(input_data, api_key)
+        else:
+            raise ValueError("Invalid input data type. Expected a pdf file, a string or a list of strings.")
+
+
+    # Helper function to generate embeddings for text
+    def _embed_text(self, texts: Union[str, List[str]], api_key: str):
         # Convert text to a list if it's a single string
-        texts = [text] if isinstance(text, str) else text
+        texts = [texts] if isinstance(texts, str) else texts
 
         # Check if the text(s) are within the token limit
         for t in texts:
@@ -57,7 +72,29 @@ class Generator:
 
         return response.json()["embeddings"]
 
-    
+    # Helper function to generate embeddings for a pdf
+    # TODO: CHUNK AND STREAM PDF RATHER THAN SENDING WHOLE
+    def _embed_pdf(self, pdf_path: str, api_key: str):
+        if not os.path.exists(pdf_path):
+            raise FileNotFoundError(f"PDF file not found at path: {pdf_path}")
+
+        with open(pdf_path, 'rb') as file:
+            pdf_content = file.read()
+
+        response = requests.post(
+            f"{GENERATION_SERVER_URL}/embed_pdf",
+            files={
+                "file": (os.path.basename(pdf_path), pdf_content),
+                "model_name": (None, models_info[get_model()]["full_name"])
+            },
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"Error in PDF embedding generation: {response.text}")
+
+        return response.json()
+
     # Counts the number of tokens in the given text with respect to the set embedding model
     def count_tokens(self, text: str):
         tokenizer = self.tokenizers[get_model()]
