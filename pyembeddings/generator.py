@@ -85,6 +85,8 @@ class Generator:
             f"{GENERATION_SERVER_URL}/embed_pdf",
             files={
                 "file": (os.path.basename(pdf_path), pdf_content),
+            },
+            json={
                 "model_name": (None, models_info[get_model()]["full_name"])
             },
             headers={"Authorization": f"Bearer {api_key}"}
