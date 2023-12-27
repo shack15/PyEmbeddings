@@ -4,7 +4,7 @@ from io import BytesIO
 import re
 import os
 
-from . import get_api_key, get_model
+from . import get_api_key, get_model, models_info
 
 # TODO: Replace with hosted API URL
 API_URL = "https://storage.silverarrow.ai"
@@ -143,13 +143,14 @@ class Collection:
     # :return: results: List of raw retrieval results.
     def retrieval_augmented_generation(self, query, n_results=10):
         api_key = get_api_key()
+        model_full_name = models_info[get_model()]["full_name"]
         response = requests.post(
             f"{API_URL}/retrieval_augmented_generation",
-            json={"collection_name": self.collection_name, "query": query, "n_results": n_results},
+            json={"collection_name": self.collection_name, "embedding_model": model_full_name, "query": query, "n_results": n_results},
             headers={"Authorization": f"Bearer {api_key}"}
         )
         # Return just prompt_response 
-        return response.json()["prompt_response"]
+        return response.json()['prompt_response']
     
 
     # Helper function to download a single file from a specified endpoint.
