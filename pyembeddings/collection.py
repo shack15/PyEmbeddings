@@ -69,6 +69,36 @@ class Collection:
         )
         return response.json()
 
+    # Convert a file to embeddings and add it to the collection.
+    # :param file_path: Path to the file to be added.
+    def add_file(self, file_path: str):
+        api_key = get_api_key()
+        if api_key is None:
+            raise Exception(
+                "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found at path: {file_path}")
+
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+
+        response = requests.post(
+            f"{API_URL}/add_file",
+            files={
+                "file": (os.path.basename(file_path), file_content),
+            },
+            json={
+                "model_name": (None, models_info[get_model()]["full_name"])
+            },
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"Error in file addition: {response.text}")
+
+        return response.json()
+
     # Queries the collection for similar embeddings.
     # :param query_embeddings: List of embeddings to be queried.
     # :param n_results: Number of results to return.
