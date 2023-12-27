@@ -134,7 +134,22 @@ class Collection:
             json={"collection_name": self.collection_name, "ids": ids, "where": where},
             headers={"Authorization": f"Bearer {api_key}"}
         )
-        return response.json()
+        return response.json()    
+
+    # Retrieval augmented generation returns a string in response to query both in language and in context of the query.
+    # :param query: Query string.
+    # :param n_results: Number of results to return.
+    # :return: prompt_response: String generated in response to query.
+    # :return: results: List of raw retrieval results.
+    def retrieval_augmented_generation(self, query, n_results=10):
+        api_key = get_api_key()
+        response = requests.post(
+            f"{API_URL}/retrieval_augmented_generation",
+            json={"collection_name": self.collection_name, "query": query, "n_results": n_results},
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        # Return just prompt_response 
+        return response.json()["prompt_response"]
     
 
     # Helper function to download a single file from a specified endpoint.
