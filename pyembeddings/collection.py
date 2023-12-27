@@ -1,9 +1,13 @@
 import requests
+from http.client import HTTPResponse
+from io import BytesIO
 import re
+import os
+
 from . import get_api_key, get_model
 
 # TODO: Replace with hosted API URL
-API_URL = "https://backend-storage-bln3a2qo6a-uc.a.run.app"
+API_URL = "https://storage.silverarrow.ai"
 
 
 class Collection:
@@ -131,3 +135,47 @@ class Collection:
             headers={"Authorization": f"Bearer {api_key}"}
         )
         return response.json()
+    
+
+    # Helper function to download a single file from a specified endpoint.
+    def download_file(self, endpoint, filename):
+        api_key = get_api_key()
+        if api_key is None:
+            raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
+
+        response = requests.post(
+            f"{API_URL}/{endpoint}",
+            json={"collection_name": self.collection_name},
+            headers={"Authorization": f"Bearer {api_key}"},
+            stream=True
+        )
+
+        if response.status_code == 200:
+            content_disposition = response.headers.get('content-disposition')
+            if content_disposition:
+                filenames = re.findall('filename="([^"]+)"', content_disposition)
+                if filenames:
+                    filename = os.path.join(os.path.dirname(filename), filenames[0])
+
+            with open(filename, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        file.write(chunk)
+
+            return filename
+        else:
+            raise Exception(f"Failed to download file: {response.status_code} - {response.text}")
+
+
+    # Export function to download both vectors and metadata TSV files.
+    def export(self, directory=''):
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+
+        saved_files = []
+        for endpoint, default_filename in [("get_vectors_tsv", "vectors.tsv"), ("get_metadata_tsv", "metadata.tsv")]:
+            full_path = os.path.join(directory, default_filename)
+            filename = self.download_file(endpoint, full_path)
+            saved_files.append(filename)
+        print(f"Saved files: {saved_files}")
+        return saved_files

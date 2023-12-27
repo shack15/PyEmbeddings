@@ -4,6 +4,8 @@
 api_key = None
 embedding_model = "MiniLM"
 
+openai_key = None
+
 # data on the models that we host
 
 models_info = {
@@ -54,6 +56,12 @@ def set_model(model):
     
 def get_model():
     return embedding_model
+
+def set_openai_key(key):
+    openai_key = key
+
+def get_openai_key():
+    return openai_key
 
 # Import necessary components
 from .database import Database
