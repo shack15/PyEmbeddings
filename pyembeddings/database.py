@@ -21,10 +21,11 @@ class Database:
                 "Model to be used for the collection not provided.")
         if model not in models_info:
             raise ValueError("Model not found. Please choose a valid model.")
+        modelInfo = models_info[model]
         # Make API request to create a new collection
         response = requests.post(
             f"{API_URL}/create_collection",
-            json={"collection_name": name, "embedding_model": model},
+            json={"collection_name": name, "embedding_model": modelInfo["full_name"]},
             headers={"Authorization": f"Bearer {api_key}"}
         )
 
