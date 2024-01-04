@@ -72,8 +72,6 @@ class Generator:
 
         return response.json()["embeddings"]
 
-    # Helper function to generate embeddings for a pdf
-    # TODO: CHUNK AND STREAM PDF RATHER THAN SENDING WHOLE
     def _embed_pdf(self, pdf_path: str, api_key: str):
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found at path: {pdf_path}")
@@ -86,8 +84,8 @@ class Generator:
             files={
                 "file": (os.path.basename(pdf_path), pdf_content),
             },
-            json={
-                "model_name": (None, models_info[get_model()]["full_name"])
+            data={
+                "model_name": models_info[get_model()]["full_name"] if get_model() in models_info else "sentence-transformers/all-MiniLM-L6-v2"
             },
             headers={"Authorization": f"Bearer {api_key}"}
         )
@@ -96,6 +94,7 @@ class Generator:
             raise Exception(f"Error in PDF embedding generation: {response.text}")
 
         return response.json()
+
 
     # Counts the number of tokens in the given text with respect to the set embedding model
     def count_tokens(self, text: str):

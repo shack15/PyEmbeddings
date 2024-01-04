@@ -69,13 +69,10 @@ class Collection:
         )
         return response.json()
 
-    # Convert a file to embeddings and add it to the collection.
-    # :param file_path: Path to the file to be added.
     def add_file(self, file_path: str):
         api_key = get_api_key()
         if api_key is None:
-            raise Exception(
-                "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
+            raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found at path: {file_path}")
@@ -88,8 +85,9 @@ class Collection:
             files={
                 "file": (os.path.basename(file_path), file_content),
             },
-            json={
-                "model_name": (None, models_info[get_model()]["full_name"])
+            data={
+                "collection_name": self.collection_name,
+                "model_name": models_info[get_model()]["full_name"] if get_model() in models_info else "sentence-transformers/all-MiniLM-L6-v2"
             },
             headers={"Authorization": f"Bearer {api_key}"}
         )
