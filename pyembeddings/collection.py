@@ -43,6 +43,23 @@ class Collection:
         )
         return response.json()
 
+    # Returns the embedding model used by the collection
+    def model(self):
+        api_key = get_api_key()
+        if api_key is None:
+            raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
+
+        response = requests.post(
+            f"{API_URL}/get_collection_model",
+            json={"collection_name": self.collection_name},
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"Error fetching collection model: {response.text}")
+
+        return response.json()
+
     # Adds embeddings to the collection.
     # :param documents: List of texts corresponding to the embeddings to be added.
     # :param metadatas: List of dictionaries of metadata corresponding to the embeddings to be added.
@@ -77,17 +94,19 @@ class Collection:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found at path: {file_path}")
 
+        collection_name = self.collection_name
+        model_full_name = models_info[get_model()]["full_name"]
         with open(file_path, 'rb') as file:
             file_content = file.read()
-
+        
         response = requests.post(
             f"{API_URL}/add_file",
             files={
                 "file": (os.path.basename(file_path), file_content),
             },
             data={
-                "collection_name": self.collection_name,
-                "model_name": models_info[get_model()]["full_name"] if get_model() in models_info else "sentence-transformers/all-MiniLM-L6-v2"
+                "collection_name": collection_name,
+                "model_name": model_full_name
             },
             headers={"Authorization": f"Bearer {api_key}"}
         )

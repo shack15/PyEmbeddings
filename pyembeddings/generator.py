@@ -79,13 +79,14 @@ class Generator:
         with open(pdf_path, 'rb') as file:
             pdf_content = file.read()
 
+        model_full_name = models_info[get_model()]["full_name"]
         response = requests.post(
             f"{GENERATION_SERVER_URL}/embed_pdf",
             files={
                 "file": (os.path.basename(pdf_path), pdf_content),
             },
             data={
-                "model_name": models_info[get_model()]["full_name"] if get_model() in models_info else "sentence-transformers/all-MiniLM-L6-v2"
+                "model_name": model_full_name
             },
             headers={"Authorization": f"Bearer {api_key}"}
         )
