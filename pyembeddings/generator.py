@@ -99,12 +99,18 @@ class Generator:
 
     # Counts the number of tokens in the given text with respect to the set embedding model
     def count_tokens(self, text: str):
+        if not isinstance(text, (str, int, float)):
+            raise TypeError("Text must be a string.")
+
         tokenizer = self.tokenizers[get_model()]
         inputs = tokenizer(text)
         return len(inputs["input_ids"])
 
     # Checks if the given text is within the token limit of the set embedding model
     def within_token_limit(self, text: str):
+        if not isinstance(text, (str, int, float)):
+            raise TypeError("Text must be a string.")
+
         token_count = self.count_tokens(text)
         max_tokens = models_info[get_model()]["token_limit"]
         if token_count > max_tokens:
