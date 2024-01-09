@@ -21,6 +21,10 @@ class Collection:
         if api_key is None:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
+        
+        # instance check
+        if not isinstance(new_collection_name, str):
+            raise TypeError("New collection name must be a string.")
 
         response = requests.post(
             f"{API_URL}/rename_collection",
@@ -72,16 +76,46 @@ class Collection:
             raise Exception(
                 "API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
-        response = requests.post(
-            f"{API_URL}/add_embeddings",
-            json={
+        # instance checks
+        if not isinstance(documents, list) or not all(isinstance(doc, str) for doc in documents):
+            raise TypeError("Documents must be a list of strings.")
+        if embeddings is not None:
+            if not isinstance(embeddings, list):
+                raise TypeError("Embeddings must be a list of lists.")
+            for emb in embeddings:
+                if not isinstance(emb, list) or not all(isinstance(x, float) for x in emb):
+                    raise ValueError("Each embedding must be a list of floats.")
+        if metadatas is not None:
+            if not isinstance(metadatas, list):
+                raise TypeError("Metadatas must be a list of dictionaries.")
+            for meta in metadatas:
+                if not isinstance(meta, dict):
+                    raise ValueError("Each metadata entry must be a dictionary.")
+        if ids is not None:
+            if not isinstance(ids, list) or not all(isinstance(id, (str, int)) for id in ids):
+                raise TypeError("IDs must be a list of strings or integers.")
+
+        if embeddings is None:
+            endpoint = f"{API_URL}/add_text"
+            payload = {
+                "collection_name": self.collection_name,
+                "documents": documents,
+                "metadatas": metadatas,
+                "ids": ids
+            }
+        else:
+            endpoint = f"{API_URL}/add_embeddings"
+            payload = {
                 "collection_name": self.collection_name,
                 "documents": documents,
                 "metadatas": metadatas,
                 "ids": ids,
                 "embeddings": embeddings,
-                "model_name": get_model()
-            },
+            }
+
+        response = requests.post(
+            endpoint,
+            json=payload,
             headers={"Authorization": f"Bearer {api_key}"}
         )
         return response.json()
@@ -127,6 +161,11 @@ class Collection:
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
+        if not isinstance(embedding, list) or not all(isinstance(x, float) for x in embedding):
+            raise TypeError("Embedding must be a list of floats.")
+        if where is not None and not isinstance(where, dict):
+            raise TypeError("The 'where' clause must be a dictionary. For example, where={'metadata_key': 'value'}")
+
         include = None
         if include_embeddings:
             include = ["metadatas", "documents", "embeddings"]
@@ -154,6 +193,13 @@ class Collection:
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
+        # instance checks
+        if ids is not None:
+            if not isinstance(ids, list) or not all(isinstance(id, (str, int)) for id in ids):
+                raise TypeError("IDs must be a list of strings or integers.")
+        if where is not None and not isinstance(where, dict):
+            raise TypeError("The 'where' clause must be a dictionary. For example, where={'metadata_key': 'value'}")
+
         include = None
         if include_embeddings:
             include = ["metadatas", "documents", "embeddings"]
@@ -176,6 +222,14 @@ class Collection:
     # :param (optional) where: Dictionary of metadata filter to be applied.
     def delete(self, ids=None, where=None):
         api_key = get_api_key()
+
+        # instance checks
+        if ids is not None:
+            if not isinstance(ids, list) or not all(isinstance(id, (str, int)) for id in ids):
+                raise TypeError("IDs must be a list of strings or integers.")
+        if where is not None and not isinstance(where, dict):
+            raise TypeError("The 'where' clause must be a dictionary. For example, where={'metadata_key': 'value'}")
+        
         response = requests.post(
             f"{API_URL}/delete_from_collection",
             json={"collection_name": self.collection_name, "ids": ids, "where": where},
@@ -191,6 +245,12 @@ class Collection:
     def retrieval_augmented_generation(self, query, n_results=10):
         api_key = get_api_key()
         model_full_name = models_info[get_model()]["full_name"]
+
+        if not isinstance(query, str):
+            raise TypeError("Query must be a string.")
+        if not isinstance(n_results, int):
+            raise TypeError("n_results must be an integer.")
+
         response = requests.post(
             f"{API_URL}/retrieval_augmented_generation",
             json={"collection_name": self.collection_name, "embedding_model": model_full_name, "query": query, "n_results": n_results},
