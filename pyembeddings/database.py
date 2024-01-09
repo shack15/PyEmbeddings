@@ -1,8 +1,7 @@
 import requests
 from .collection import Collection
-from . import get_api_key, models_info
+from . import get_api_key, models_info, set_model
 
-# TODO: Replace with hosted API URL
 API_URL = "https://storage.silverarrow.ai"
 
 
@@ -21,6 +20,7 @@ class Database:
                 "Model to be used for the collection not provided.")
         if model not in models_info:
             raise ValueError("Model not found. Please choose a valid model.")
+        set_model(model)
         modelInfo = models_info[model]
         # Make API request to create a new collection
         response = requests.post(
@@ -49,6 +49,18 @@ class Database:
             json={"collection_name": name},
             headers={"Authorization": f"Bearer {api_key}"}
         )
+
+        model_full_name = requests.post(
+            f"{API_URL}/get_collection_model",
+            json={"collection_name": self.collection_name},
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        model_full_name = model_full_name.json()
+
+        for model in models_info:
+            if models_info[model]["full_name"] == model_full_name:
+                set_model(model)
+                break
 
         if response.status_code == 200:
             return Collection(name)
