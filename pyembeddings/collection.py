@@ -156,13 +156,27 @@ class Collection:
     # !!! TODO: CURRENTLY ONLY SUPPORTS ONE DICTIONARY FOR FILTER
     # :param (optional) where: Dictionary of metadata filters to be applied.
     # :param (optional) include_embeddings: Whether to include embeddings in the response.
-    def query(self, embedding, n_results=10, where=None, include_embeddings=False):
+    def query(self, query_embedding=None, query_text=None, n_results=10, where=None, include_embeddings=False):
         api_key = get_api_key()
         if api_key is None:
             raise Exception("API key not set. Use embeddings.api_key = API_KEY to set the API key.")
 
-        if not isinstance(embedding, list) or not all(isinstance(x, float) for x in embedding):
-            raise TypeError("Embedding must be a list of floats.")
+        # Ensure that either query_embedding or query_text is provided, but not both
+        if query_embedding is not None and query_text is not None:
+            raise ValueError("You must provide either an embedding or a text query, but not both.")
+        if query_embedding is None and query_text is None:
+            raise ValueError("You must provide either an embedding or a text query.")
+
+        # Validate the query_embedding if provided
+        if query_embedding is not None:
+            if not isinstance(query_embedding, list) or not all(isinstance(x, float) for x in query_embedding):
+                raise TypeError("Embedding must be a list of floats.")
+
+        # Validate the query_text if provided
+        if query_text is not None:
+            if not isinstance(query_text, str):
+                raise TypeError("Text query must be a string.")
+
         if where is not None and not isinstance(where, dict):
             raise TypeError("The 'where' clause must be a dictionary. For example, where={'metadata_key': 'value'}")
 
@@ -170,15 +184,24 @@ class Collection:
         if include_embeddings:
             include = ["metadatas", "documents", "embeddings"]
 
+        # Choose the appropriate endpoint based on the type of query
+        endpoint = "/text_query_collection" if query_text is not None else "/query_collection"
+        query_data = {
+            "collection_name": self.collection_name,
+            "n_results": n_results,
+            "where": where,
+            "include": include
+        }
+
+        # Add the appropriate query data
+        if query_text is not None:
+            query_data["query_text"] = query_text
+        else:
+            query_data["query_embeddings"] = [query_embedding]
+
         response = requests.post(
-            f"{API_URL}/query_collection",
-            json={
-                "collection_name": self.collection_name,
-                "query_embeddings": [embedding],
-                "n_results": n_results,
-                "where": where,
-                "include": include
-            },
+            f"{API_URL}{endpoint}",
+            json=query_data,
             headers={"Authorization": f"Bearer {api_key}"}
         )
         return response.json()

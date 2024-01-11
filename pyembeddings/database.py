@@ -52,7 +52,7 @@ class Database:
 
         model_full_name = requests.post(
             f"{API_URL}/get_collection_model",
-            json={"collection_name": self.collection_name},
+            json={"collection_name": name},
             headers={"Authorization": f"Bearer {api_key}"}
         )
         model_full_name = model_full_name.json()
