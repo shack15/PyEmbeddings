@@ -9,7 +9,7 @@ openai_key = None
 # data on the models that we host
 
 models_info = {
-    "bge-small": {
+    "BAAI/bge-small-en-v1.5": {
         "full_name": "BAAI/bge-small-en-v1.5",
         "type": "text",
         "description": "General purpose embedding model",
@@ -17,7 +17,7 @@ models_info = {
         "token_limit": 512,
         "pricing": "0.0001 per embedding",
     },
-    "bge-base": {
+    "BAAI/bge-base-en-v1.5": {
         "full_name": "BAAI/bge-base-en-v1.5",
         "type": "text",
         "description": "General purpose embedding model",
@@ -25,7 +25,7 @@ models_info = {
         "token_limit": 512,
         "pricing": "0.0001 per embedding",
     },
-    "MiniLM": {
+    "sentence-transformers/all-MiniLM-L6-v2": {
         "full_name": "sentence-transformers/all-MiniLM-L6-v2",
         "type": "text",
         "description": "General purpose embedding model",
@@ -33,8 +33,8 @@ models_info = {
         "token_limit": 512,
         "pricing": "0.00001 per embedding",
     },
-    "jina-small": {
-        "full_name": "jinaai/jina-embeddings-v2-small-en",
+    "jinaai/jina-embeddings-v2-base-en": {
+        "full_name": "jinaai/jina-embeddings-v2-base-en",
         "type": "text",
         "description": "General purpose embedding model",
         "dimensions": 512,

@@ -5,7 +5,7 @@ from typing import Union, List
 from . import get_api_key, set_model, get_model, models_info
 
 # Constants
-GENERATION_SERVER_URL = "https://generation-cpu-bln3a2qo6a-uc.a.run.app"
+GENERATION_SERVER_URL = "http://34.41.147.156"
 
 class Generator:
     # Initializes the Generator
@@ -114,5 +114,5 @@ class Generator:
         token_count = self.count_tokens(text)
         max_tokens = models_info[get_model()]["token_limit"]
         if token_count > max_tokens:
-            return False, f"Text exceeds the token limit of {max_tokens}.\nCurrent token count is {token_count}."
+            return False, f"Text {str} exceeds the token limit of {max_tokens}.\nCurrent token count is {token_count}."
         return True, "Text is within the token limit."

@@ -265,18 +265,16 @@ class Collection:
     # :param n_results: Number of results to return.
     # :return: prompt_response: String generated in response to query.
     # :return: results: List of raw retrieval results.
-    def retrieval_augmented_generation(self, query, n_results=10):
+    def rag(self, query):
         api_key = get_api_key()
         model_full_name = models_info[get_model()]["full_name"]
 
         if not isinstance(query, str):
             raise TypeError("Query must be a string.")
-        if not isinstance(n_results, int):
-            raise TypeError("n_results must be an integer.")
 
         response = requests.post(
             f"{API_URL}/retrieval_augmented_generation",
-            json={"collection_name": self.collection_name, "embedding_model": model_full_name, "query": query, "n_results": n_results},
+            json={"collection_name": self.collection_name, "embedding_model": model_full_name, "query": query, "n_results": 10},
             headers={"Authorization": f"Bearer {api_key}"}
         )
         # Return just prompt_response 
