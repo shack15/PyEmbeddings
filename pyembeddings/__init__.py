@@ -2,7 +2,7 @@
 
 # API Key as module level variable
 api_key = None
-embedding_model = "MiniLM"
+embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
 
 openai_key = None
 
