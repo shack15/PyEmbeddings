@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyembeddings',  
-    version='0.1.0',
+    version='0.1.1',
     author='Anant Sinha',
     author_email='anant@shack15.com',
     description='Simple and intuitive embeddings generation, storage, and retrieval.',
